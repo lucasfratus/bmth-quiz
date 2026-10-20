@@ -60,8 +60,8 @@ class IniciarPartidaRequest(_message.Message):
 class PartidaRequest(_message.Message):
     __slots__ = ("id_partida",)
     ID_PARTIDA_FIELD_NUMBER: _ClassVar[int]
-    id_partida: str
-    def __init__(self, id_partida: _Optional[str] = ...) -> None: ...
+    id_partida: int
+    def __init__(self, id_partida: _Optional[int] = ...) -> None: ...
 
 class Alternativa(_message.Message):
     __slots__ = ("letra", "texto")
@@ -103,7 +103,7 @@ class EstadoPartida(_message.Message):
     SEGUNDOS_DECORRIDOS_FIELD_NUMBER: _ClassVar[int]
     AJUDAS_FIELD_NUMBER: _ClassVar[int]
     NIVEIS_DA_PARTIDA_FIELD_NUMBER: _ClassVar[int]
-    id_partida: str
+    id_partida: int
     nickname: str
     status: Status
     nivel: str
@@ -119,15 +119,15 @@ class EstadoPartida(_message.Message):
     segundos_decorridos: float
     ajudas: _containers.RepeatedCompositeFieldContainer[Ajuda]
     niveis_da_partida: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, id_partida: _Optional[str] = ..., nickname: _Optional[str] = ..., status: _Optional[_Union[Status, str]] = ..., nivel: _Optional[str] = ..., ordem: _Optional[int] = ..., total: _Optional[int] = ..., enunciado: _Optional[str] = ..., alternativas: _Optional[_Iterable[_Union[Alternativa, _Mapping]]] = ..., eliminadas: _Optional[_Iterable[str]] = ..., pontuacao: _Optional[int] = ..., pontos_base: _Optional[int] = ..., bonus_maximo: _Optional[int] = ..., janela_bonus_s: _Optional[int] = ..., segundos_decorridos: _Optional[float] = ..., ajudas: _Optional[_Iterable[_Union[Ajuda, _Mapping]]] = ..., niveis_da_partida: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, id_partida: _Optional[int] = ..., nickname: _Optional[str] = ..., status: _Optional[_Union[Status, str]] = ..., nivel: _Optional[str] = ..., ordem: _Optional[int] = ..., total: _Optional[int] = ..., enunciado: _Optional[str] = ..., alternativas: _Optional[_Iterable[_Union[Alternativa, _Mapping]]] = ..., eliminadas: _Optional[_Iterable[str]] = ..., pontuacao: _Optional[int] = ..., pontos_base: _Optional[int] = ..., bonus_maximo: _Optional[int] = ..., janela_bonus_s: _Optional[int] = ..., segundos_decorridos: _Optional[float] = ..., ajudas: _Optional[_Iterable[_Union[Ajuda, _Mapping]]] = ..., niveis_da_partida: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ResponderRequest(_message.Message):
     __slots__ = ("id_partida", "letra")
     ID_PARTIDA_FIELD_NUMBER: _ClassVar[int]
     LETRA_FIELD_NUMBER: _ClassVar[int]
-    id_partida: str
+    id_partida: int
     letra: str
-    def __init__(self, id_partida: _Optional[str] = ..., letra: _Optional[str] = ...) -> None: ...
+    def __init__(self, id_partida: _Optional[int] = ..., letra: _Optional[str] = ...) -> None: ...
 
 class ResultadoResposta(_message.Message):
     __slots__ = ("correta", "letra_alt_escolhida", "texto_alt_escolhida", "letra_alt_correta", "texto_alt_correta", "pontos_ganhos", "bonus", "pontuacao", "status", "nivel", "ordem", "total", "enunciado", "posicao_ranking")
@@ -165,9 +165,9 @@ class UsarAjudaRequest(_message.Message):
     __slots__ = ("id_partida", "ajuda")
     ID_PARTIDA_FIELD_NUMBER: _ClassVar[int]
     AJUDA_FIELD_NUMBER: _ClassVar[int]
-    id_partida: str
+    id_partida: int
     ajuda: TipoAjuda
-    def __init__(self, id_partida: _Optional[str] = ..., ajuda: _Optional[_Union[TipoAjuda, str]] = ...) -> None: ...
+    def __init__(self, id_partida: _Optional[int] = ..., ajuda: _Optional[_Union[TipoAjuda, str]] = ...) -> None: ...
 
 class ResultadoAjuda(_message.Message):
     __slots__ = ("tipo", "ordem", "total", "nivel", "eliminadas", "enunciado_pulado", "letra_alt_correta", "texto_alt_correta", "pontos_ganhos", "pontuacao")
