@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package quiz;
+
+service Quiz {
+    rpc ListarRanking (ListarRankingRequest) returns (ListarRankingResponse);
+    rpc IniciarPartida (IniciarPartidaRequest) returns (EstadoPartida);
+    rpc ObterEstado (PartidaRequest) returns (EstadoPartida);
+    rpc Responder (ResponderRequest) returns (ResultadoResposta);
+    rpc UsarAjuda (UsarAjudaRequest) returns (ResultadoAjuda);
+}
+
+enum Status {
+    STATUS_UNDEFINED = 0;
+    EM_ANDAMENTO = 1;
+    DERROTA = 2;
+    VITORIA = 3;
+}
+
+enum TipoAjuda {
+    AJUDA_UNDEFINED = 0;
+    MEIO_A_MEIO = 1;
+    PULO = 2;
+    PASSE_LIVRE = 3;
+}
+
+message ListarRankingRequest { 
+    int32 limite = 1;
+}
+
+message EntradaRanking {
+    string nickname = 1;
+    int32 pontuacao = 2;
+    string data = 3; // dia/mes/ano (xx/yy/zzzz)
+}
+
+message ListarRankingResponse { repeated EntradaRanking entradas = 1; }
+
+message IniciarPartidaRequest {
+    string nickname = 1;
+}
+
+message PartidaRequest {
+    string id_partida = 1;
+}
+
+message Alternativa {
+    string letra = 1;
+    string texto = 2;
+}
+
+message Ajuda {
+    TipoAjuda tipo = 1;
+    string nome = 2;
+    string descricao = 3;
+    bool esta_disponivel = 4;
+    string motivo = 5;
+}
+
+message EstadoPartida {
+    string id_partida = 1;
+    string nickname = 2;
+    Status status = 3;
+    string nivel = 4;
+    int32 ordem = 5;
+    int32 total = 6;
+    string enunciado = 7;
+    repeated Alternativa alternativas = 8;
+    repeated string eliminadas = 9;
+    int32 pontuacao = 10;
+    int32 pontos_base = 11;
+    int32 bonus_maximo = 12;
+    int32 janela_bonus_s = 13;
+    double segundos_decorridos = 14;
+    repeated Ajuda ajudas = 15;
+    repeated string niveis_da_partida = 16;
+}
+
+message ResponderRequest {
+    string id_partida = 1;
+    string letra = 2;
+}
+
+message ResultadoResposta {
+    bool correta = 1;
+    string letra_alt_escolhida = 2;
+    string texto_alt_escolhida = 3;
+    string letra_alt_correta = 4;
+    string texto_alt_correta = 5;
+    int32 pontos_ganhos = 6; // pontos base + bonus
+    int32 bonus = 7;  // max (0, 60 - segundos) * fator -> arredondado para baixo
+    int32 pontuacao = 8;
+    Status status = 9;
+    string nivel = 10;
+    int32 ordem = 11;
+    int32 total = 12;
+    string enunciado = 13;
+    int32 posicao_ranking = 14; // 0 se estiver fora do top 10
+}
+
+message UsarAjudaRequest {
+    string id_partida = 1;
+    TipoAjuda ajuda = 2;
+}
+
+message ResultadoAjuda {
+    TipoAjuda tipo = 1;
+    int32 ordem = 2;
+    int32 total = 3;
+    string nivel = 4;
+    repeated string eliminadas = 5; // meio a meio
+    string enunciado_pulado = 6; // pulo
+    string letra_alt_correta = 7; // passe livre
+    string texto_alt_correta = 8; // passe livre
+    int32 pontos_ganhos = 9; // passe livre
+    int32 pontuacao = 10;
+}

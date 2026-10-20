@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+quiz.db
+quiz.db-wal
+quiz.db-shm
