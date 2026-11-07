@@ -27,7 +27,7 @@ NIVEIS_DA_PARTIDA = [
 ]
 TOTAL_PERGUNTAS = len(NIVEIS_DA_PARTIDA)
  
-PONTOS_BASE = {"Fácil": 100, "Médio": 200, "Difícil": 300, "Final": 1000}
+PONTOS_BASE = {"Fácil": 50, "Médio": 100, "Difícil": 300, "Final": 1000}
 
 
 JANELA_DE_BONUS = 60
@@ -106,11 +106,7 @@ def resumir_request(request) -> str:
 
 
 def abortar_com_erro(context, nome_rpc: str, request, erro: Exception):
-    """escreve no log e encerra a chamada com um status.
- 
-    - ErroRpc (erro de regra do jogo) vira o código que o rpc escolheu, como NOT_FOUND.
-    - Qualquer outro erro vira INTERNAL
-    """
+    """escreve no log e encerra a chamada com um status."""
     pedido = resumir_request(request)
     if isinstance(erro, ErroRpc):
         log.info("%s %s -> %s: %s", nome_rpc, pedido, erro.codigo.name, erro.mensagem)
@@ -129,7 +125,7 @@ class ServidorQuiz(pb_grpc.QuizServicer):
     def __init__(self, caminho_banco: Path):
         self.caminho_banco = caminho_banco
  
-    def _conectar(self) -> sqlite3.Connection:
+    def conectar(self) -> sqlite3.Connection:
         conexao = sqlite3.connect(self.caminho_banco, timeout=5, isolation_level=None)
         conexao.row_factory = sqlite3.Row
         conexao.execute("PRAGMA foreign_keys = ON")
@@ -140,7 +136,7 @@ class ServidorQuiz(pb_grpc.QuizServicer):
         inicio = time.perf_counter()
         try:
             limite = request.limite if 0 < request.limite <= 100 else 10
-            with closing(self._conectar()) as conexao:
+            with closing(self.conectar()) as conexao:
                 linhas = conexao.execute(SQL_RANKING, (limite,)).fetchall()
             entradas = []
             for linha in linhas:
@@ -164,7 +160,7 @@ class ServidorQuiz(pb_grpc.QuizServicer):
             if not valida_nickname(nickname):
                 raise ErroRpc(grpc.StatusCode.INVALID_ARGUMENT,
                               "Use de 3 a 20 caracteres: letras sem acento, números, ponto, hífen ou underline.")
-            with closing(self._conectar()) as conexao:
+            with closing(self.conectar()) as conexao:
                 conexao.execute("BEGIN IMMEDIATE")
                 try:
                     jogador_id = conexao.execute(
@@ -177,7 +173,7 @@ class ServidorQuiz(pb_grpc.QuizServicer):
                     "INSERT INTO jogo (jogador_id, iniciado_em) VALUES (?, ?)", (jogador_id, agora_ms())
                 ).lastrowid
                 conexao.execute("COMMIT")
-                resposta = self._estado(conexao, jogo_id)
+                resposta = self.estado(conexao, jogo_id)
         except Exception as erro:
             abortar_com_erro(context, "IniciarPartida", request, erro)
         registrar_sucesso("IniciarPartida", request, inicio)
@@ -187,8 +183,8 @@ class ServidorQuiz(pb_grpc.QuizServicer):
     def ObterEstado(self, request, context):
         inicio = time.perf_counter()
         try:
-            with closing(self._conectar()) as conexao:
-                resposta = self._estado(conexao, request.id_partida)
+            with closing(self.conectar()) as conexao:
+                resposta = self.estado(conexao, request.id_partida)
         except Exception as erro:
             abortar_com_erro(context, "ObterEstado", request, erro)
         registrar_sucesso("ObterEstado", request, inicio)
@@ -203,13 +199,8 @@ class ServidorQuiz(pb_grpc.QuizServicer):
         context.abort(grpc.StatusCode.UNIMPLEMENTED, "Entrega Final.")
 
 
-    def _estado(self, conexao: sqlite3.Connection, jogo_id: int) -> pb.EstadoPartida:
-        """Lê a partida e, se a posição atual ainda não tem uma pergunta, sorteia.
- 
-        Tudo dentro de BEGIN IMMEDIATE: se dois servidores receberem o mesmo
-        ObterEstado ao mesmo tempo, o segundo espera o primeiro e encontra a
-        pergunta já sorteada, em vez de sortear outra.
-        """
+    def estado(self, conexao: sqlite3.Connection, jogo_id: int) -> pb.EstadoPartida:
+        """Lê a partida e, se a posição atual ainda não tem uma pergunta, sorteia."""
         if jogo_id <= 0:
             raise ErroRpc(grpc.StatusCode.NOT_FOUND, "Informe o id da partida.")
  
@@ -259,15 +250,15 @@ class ServidorQuiz(pb_grpc.QuizServicer):
             eliminadas=eliminadas,
             pontuacao=jogo["pontuacao"],
             pontos_base=PONTOS_BASE[nivel],
-            bonus_maximo=bonus_maximo(nivel),
             janela_bonus_s=JANELA_DE_BONUS,
             segundos_decorridos=max(0, agora_ms() - atual["exibida_em"]) / 1000,
-            ajudas=self._ajudas(jogo, nivel),
+            bonus_maximo=bonus_maximo(nivel, max(0, agora_ms() - atual["exibida_em"]) / 1000),
+            ajudas=self.ajudas(jogo, nivel),
             niveis_da_partida=NIVEIS_DA_PARTIDA,
         )
  
     @staticmethod
-    def _ajudas(jogo: sqlite3.Row, nivel: str) -> list[pb.Ajuda]:
+    def ajudas(jogo: sqlite3.Row, nivel: str) -> list[pb.Ajuda]:
         ajudas = []
         for tipo, nome, descricao, coluna in AJUDAS:
             motivo = ""
@@ -281,12 +272,12 @@ class ServidorQuiz(pb_grpc.QuizServicer):
  
  
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Servidor gRPC do Show do Horizonte")
-    ap.add_argument("--id", type=int, required=True, help="número do servidor (1, 2, 3...)")
+    ap = argparse.ArgumentParser(description="Servidor gRPC")
+    ap.add_argument("--id", type=int, required=True, help="número do servidor")
     ap.add_argument("--porta", type=int, help="padrão: 50050 + id")
     ap.add_argument("--host", default="127.0.0.1",
                     help="padrão: 127.0.0.1, apenas o balanceador na mesma máquina é permitido")
-    ap.add_argument("--banco", type=Path, default=Path(__file__).resolve().parent / "quiz.db")
+    ap.add_argument("--banco", type=Path, default=Path(__file__).resolve().parent / "banco/quiz.db")
     args = ap.parse_args()
     porta = args.porta or 50050 + args.id
  
@@ -294,7 +285,7 @@ def main() -> int:
                         datefmt="%H:%M:%S")
  
     if not args.banco.exists():
-        log.error("Banco %s não encontrado. Crie com: python banco/criar_banco.py", args.banco)
+        log.error("Banco %s não encontrado", args.banco)
         return 1
  
     servidor = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
