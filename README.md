@@ -1,4 +1,3 @@
-# bmth-quiz
 # Show do Horizonte
 
 Quiz online no estilo "Show do Milhão" com o tema **Bring Me the Horizon**. Trabalho prático de Sistemas Distribuídos
@@ -23,7 +22,7 @@ O cliente já tem também as telas de ranking, fim de jogo, vencedor e ajudas. O
   - `grpcio` e `grpcio-tools` (gRPC)
   - `protobuf` (formato das mensagens).
 - **SQLite** (banco de dados)
-- **ngrok**:
+- **ngrok**
 
 
 ## Como executar
@@ -57,13 +56,6 @@ python servidor.py --id 3          # porta 50053
 python balanceador.py              # porta 50050
 ```
 
-Para subir os quatro de uma vez, em um único terminal, execute o arquivo python `subir.py`:
-
-```bash
-python subir.py
-```
-
-
 ### 4. Cliente
 
 Na mesma máquina, se comunicando com o balanceador:
@@ -94,10 +86,10 @@ endpoints:
  
 Com o balanceador rodando, suba o túnel apontando para esse endpoint.
  
-**No dispositivo do cliente**, passe o link gerado pelo ngrok no parâmetro `--servidor`, com `:443` no fim e a flag `--seguro` (liga o TLS, que o ngrok exige):
+**No dispositivo do cliente**, passe o link gerado pelo ngrok no parâmetro `--endereco`, com `:443` no fim e a flag `--seguro` (liga o TLS, que o ngrok exige):
  
 ```bash
-python cliente.py --servidor SEU-DOMINIO.ngrok-free.dev:443 --seguro
+python cliente.py --endereco SEU-DOMINIO.ngrok-free.dev:443 --seguro
 ```
  
 Troque `SEU-DOMINIO.ngrok-free.dev` pelo domínio que o ngrok gerar. Não é necessário alterar o código do projeto.

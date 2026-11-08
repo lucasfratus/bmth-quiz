@@ -3,3 +3,4 @@ __pycache__/
 quiz.db
 quiz.db-wal
 quiz.db-shm
+balanceador.log
