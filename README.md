@@ -1,11 +1,11 @@
 # bmth-quiz
 # Show do Horizonte
 
-Quiz online no estilo "Show do Milhão" com o tema **Bring Me the Horizon**. Trabalho prático de Sistemas Distribuídos (UEM), **Entrega 2**.
+Quiz online no estilo "Show do Milhão" com o tema **Bring Me the Horizon**. Trabalho prático de Sistemas Distribuídos
 
-## Arquivos da entrega 2
+## Arquivos
 
-| Item | Arquivo |
+| Item | Arquivo(s) |
 |---|---|
 | Interface do cliente (tela inicial, novo jogo e primeira pergunta) | `cliente.py` (interface de terminal) |
 | Balanceador de carga operante (Round-Robin) | `balanceador.py` |
@@ -28,7 +28,7 @@ O cliente já tem também as telas de ranking, fim de jogo, vencedor e ajudas. O
 
 ## Como executar
 
-Todos os comandos são na pasta do projeto.
+Todos os comandos são executados dentro pasta do projeto.
 
 ### 1. Ambiente
 
@@ -75,7 +75,7 @@ python cliente.py
 Pelo ngrok, de outro dispositivo (verifique a próxima seção):
 
 ```bash
-python cliente.py --servidor SEU-DOMINIO.ngrok-free.dev:443 --seguro
+python cliente.py --endereco SEU-DOMINIO.ngrok-free.dev:443 --seguro
 ```
 
 
@@ -113,8 +113,8 @@ IP/porta cliente; tipo requisicao; horario; servidor atribuido
 ```
 
 - **tipo requisicao**: o nome do rpc (`ListarRanking`, `IniciarPartida`, `ObterEstado`, `Responder`, `UsarAjuda`).
-- **IP/porta cliente**: com o ngrok no meio, quem chega ao balanceador é o agente do ngrok (na própria máquina). Quando o ngrok envia o cabeçalho `x-forwarded-for`, o IP do jogador aparece antes, no formato `IP (via 127.0.0.1:porta)`.
-- **servidor atribuido**: o servidor que de fato respondeu. Se um servidor estiver fora do ar, o balanceador tenta o próximo, e a linha mostra o que atendeu. Se nenhum estiver no ar, aparece `nenhum (todos indisponíveis)`.
+- **IP/porta cliente**: com o ngrok, quem chega ao balanceador é o agente do ngrok (na própria máquina). Quando o ngrok envia o cabeçalho `x-forwarded-for`, o IP do jogador aparece antes, no formato `IP (via 127.0.0.1:porta)`.
+- **servidor atribuido**: o servidor que de fato respondeu. Se um servidor estiver fora do ar, o balanceador tenta o próximo.
 
 ## Balanceamento
 
@@ -137,13 +137,11 @@ O SQLite é utilizado (arquivo em banco/quiz.db). Os 3 servidores abrem o mesmo 
 cliente.py             interface de terminal
 balanceador.py         balanceador Round-Robin com log em arquivo
 servidor.py            servidor gRPC (ListarRanking, IniciarPartida, ObterEstado)
-subir.py               sobe os 3 servidores e o balanceador de uma vez
 testar_servidor.py     chama os rpcs no balanceador ou em um servidor
 requirements.txt       bibliotecas
 proto/quiz.proto       contrato gRPC
 quiz_pb2*.py, .pyi     código gerado a partir do quiz.proto
 banco/schema.sql       tabelas
-banco/perguntas.sql    as 48 perguntas
 banco/criar_banco.py   cria o banco/quiz.db
 ```
 
