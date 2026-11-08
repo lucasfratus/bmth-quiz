@@ -1,8 +1,8 @@
 """
 Uso:
     python cliente.py                          # fala com o balanceador local, 127.0.0.1:50050
-    python cliente.py --servidor 127.0.0.1:50051   # fala direto com um servidor
-    python cliente.py --servidor <endereço>.ngrok-free.app:443 --seguro   # pelo ngrok
+    python cliente.py --endereco 127.0.0.1:50051   # fala direto com um servidor
+    python cliente.py --endereco <endereço>.ngrok-free.app:443 --seguro   # pelo ngrok
 
 """
 
@@ -340,16 +340,16 @@ def usar_ajuda(stub, estado, tipo):
 
 def main():
     ap = argparse.ArgumentParser(description="Cliente")
-    ap.add_argument("--servidor", default="127.0.0.1:50050",
+    ap.add_argument("--endereco", default="127.0.0.1:50050",
                     help="endereço do balanceador (padrão: 127.0.0.1:50050)")
     ap.add_argument("--seguro", action="store_true",
-                    help="usa TLS (criptografia do HTTPS); necessário com o ngrok, porta 443")
+                    help="usa TLS. necessário com o ngrok, porta 443")
     args = ap.parse_args()
 
     if args.seguro:
-        canal = grpc.secure_channel(args.servidor, grpc.ssl_channel_credentials())
+        canal = grpc.secure_channel(args.endereco, grpc.ssl_channel_credentials())
     else:
-        canal = grpc.insecure_channel(args.servidor)
+        canal = grpc.insecure_channel(args.endereco)
     stub = pb_grpc.QuizStub(canal)
 
     try:

@@ -1,13 +1,10 @@
--- Perguntas do Show do Horizonte (48: 12 por nível).
 -- Rode depois do schema.sql:
 --   sqlite3 quiz.db < banco/schema.sql
 --   sqlite3 quiz.db < banco/perguntas.sql
--- No DB Browser for SQLite: aba "Executar SQL", cole o arquivo e execute.
--- Pode rodar de novo: pergunta com o mesmo enunciado é atualizada, não duplicada.
 
 BEGIN;
 
--- Fácil
+
 INSERT INTO pergunta (nivel, enunciado, alt_a, alt_b, alt_c, alt_d, alt_correta) VALUES
   ('facil', 'Quem é o vocalista do Bring Me the Horizon?',
    'Lee Malia', 'Matt Kean', 'Jordan Fish', 'Oli Sykes', 'D'),
@@ -39,7 +36,7 @@ ON CONFLICT (enunciado) DO UPDATE SET
   alt_c = excluded.alt_c, alt_d = excluded.alt_d,
   alt_correta = excluded.alt_correta;
 
--- Médio
+
 INSERT INTO pergunta (nivel, enunciado, alt_a, alt_b, alt_c, alt_d, alt_correta) VALUES
   ('medio', 'Qual integrante, tecladista que entrou na época de Sempiternal, deixou a banda em dezembro de 2023?',
    'Jordan Fish', 'Jona Weinhofen', 'Curtis Ward', 'Matt Kean', 'A'),
@@ -71,7 +68,7 @@ ON CONFLICT (enunciado) DO UPDATE SET
   alt_c = excluded.alt_c, alt_d = excluded.alt_d,
   alt_correta = excluded.alt_correta;
 
--- Difícil
+
 INSERT INTO pergunta (nivel, enunciado, alt_a, alt_b, alt_c, alt_d, alt_correta) VALUES
   ('dificil', 'Qual cantora participa de "Nihilist Blues"?',
    'Halsey', 'Grimes', 'Billie Eilish', 'Lorde', 'B'),
@@ -103,7 +100,7 @@ ON CONFLICT (enunciado) DO UPDATE SET
   alt_c = excluded.alt_c, alt_d = excluded.alt_d,
   alt_correta = excluded.alt_correta;
 
--- Final
+
 INSERT INTO pergunta (nivel, enunciado, alt_a, alt_b, alt_c, alt_d, alt_correta) VALUES
   ('final', 'Qual é o nome do primeiro EP da banda, lançado em 2004?',
    'Diamonds Aren''t Forever', 'This Is What the Edge of Your Seat Was Made For', 'Hospital for Souls', 'Count Your Blessings', 'B'),
